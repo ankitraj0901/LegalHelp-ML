@@ -23,8 +23,6 @@ CORS(
 model = xgb.XGBRegressor()
 model.load_model("model/xgb_tax_model.json")
 
-
-
 def calculate_tax(taxable_income):
     # 1. Base Tax Calculation (without Cess and Rebate)
     tax = 0
@@ -215,9 +213,6 @@ def optimize_tax():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-
-
 
 # Run App
 if __name__ == "__main__":
