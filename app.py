@@ -28,7 +28,7 @@ def calculate_tax(taxable_income):
     tax = 0
     income_to_tax = max(0, taxable_income) # Ensure income is not negative
 
-    # New Tax Regime Slabs (FY 2025-26 / AY 2026-27)
+    
     # Slab 1: Up to 4,00,000 -> 0%
     if income_to_tax <= 400000:
         tax = 0
@@ -36,12 +36,13 @@ def calculate_tax(taxable_income):
 
     # Slab 2: 4,00,001 to 8,00,000 -> 5%
     elif income_to_tax <= 800000:
+        # Tax on first 4L:0
         # Taxable amount in this slab: income_to_tax - 400000
         tax = (income_to_tax - 400000) * 0.05
         
 
-
-    # Slab 3: 8,00,001 to 12,00,000 -> 10%
+##### The Tax slab is progressive, so we need to calculate tax for each slab and add it up. For example, if income is 10L:
+    # Slab 3: 8,00,001 to 12,00,000->10%
     elif income_to_tax <= 1200000:
         # Tax on 4L to 8L: 4,00,000 * 5%=20,000
         tax = 20000
@@ -87,7 +88,7 @@ def calculate_tax(taxable_income):
         tax += (income_to_tax - 2400000) * 0.30
         
 
-    # 2. Rebate under Section 87A
+    
     # Rebate up to Rs 60,000 for income up to Rs 12,00,000
     if income_to_tax <= 1200000:
         # Rebate is the lesser of the calculated tax or the maximum rebate (60,000)
@@ -110,24 +111,27 @@ def prepare_features(data):
 
     df["total_deductions"] = (
         df["invest_80C"]
-        + df["invest_80D"]
-        + df["home_loan_interest"]
-        + df["standard_deduction"]
-    )
+                + df["invest_80D"]
+            + df["home_loan_interest"]
+            + df["standard_deduction"]
+    )   
 
     df["net_income_after_hra"] = df["gross_income"] - df["hra"]
 
     return df[
         [
             "salary",
+
             "hra",
+        
             "lta",
+            #lta is not important as of now
             "invest_80C",
             "invest_80D",
             "home_loan_interest",
-            "rent_paid",
-            "other_income",
-            "gross_income",
+            "rent_paid",#important
+            "other_income",#important
+            "gross_income",#important
             "total_deductions",
             "net_income_after_hra",
         ]
@@ -159,11 +163,11 @@ def predict_tax():
         # Prepare ML features
         X = prepare_features(data)
 
-        # FIX 1: Convert NumPy → Python float
+        # FIX1:Convert NumPy→Python float
         taxable_income = float(model.predict(X)[0])
         taxable_income = max(0.0, round(taxable_income, 2))
 
-        # FIX 2: Ensure tax is Python float
+        # FIX2:Ensure tax is Python float
         final_tax = float(calculate_tax(taxable_income))
 
         return jsonify({
@@ -177,13 +181,15 @@ def predict_tax():
         return jsonify({"error": str(e)}), 500
     
 
+
+#this is for testing CORS
 @app.route("/cors-test", methods=["GET", "OPTIONS"])
 def cors_test():
     return jsonify({"message": "CORS is working"})
 
 
 
-
+#check if model is working
 
 
 # This code is for tax optimization
@@ -218,4 +224,3 @@ def optimize_tax():
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5000, debug=True)
 
-# CORS(app)
